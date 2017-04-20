@@ -1,3 +1,7 @@
+//
+// Split a picture into four
+//
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,18 +19,11 @@
 #define MAX_HEIGHT  4320
 
 
-typedef struct
-{
-    char name[256];
-} string_t;
-
-static string_t null;
 static uint8_t img[MAX_WIDTH * MAX_HEIGHT * 3 / 2];
 static uint8_t tl[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3 / 2]; // top-left
 static uint8_t tr[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3 / 2]; // top-right
 static uint8_t bl[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3 / 2]; // bottom-left
 static uint8_t br[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3 / 2]; // bottom-right
-
 
 
 int main(int argc, const char * argv[])
@@ -44,7 +41,7 @@ int main(int argc, const char * argv[])
     uint32_t wxh;
 
     char *cp;
-    string_t output;
+    char output[256] = { 0 };
 
     if (argc < 4)
     {
@@ -58,7 +55,6 @@ int main(int argc, const char * argv[])
     height      = 0;
     wxh         = 0;
     cp          = NULL;
-    output      = null;
     
     fd_src = open(argv[1], O_RDONLY);
     if (fd_src < 0)
@@ -69,48 +65,45 @@ int main(int argc, const char * argv[])
     
     // specify output file name (0,0)
     cp = strchr(argv[1], '.');
-    strncpy(output.name, argv[1], cp - argv[1]);
-    strcat(output.name, "_tl.yuv");
+    strncpy(output, argv[1], cp - argv[1]);
+    strcat(output, "_tl.yuv");
     
     fd_tl = open
             (
-             output.name,
+             output,
              O_WRONLY | O_CREAT | O_TRUNC,
              S_IRUSR
             );
     // specify output file name (0,1)
-    output = null;
     cp = strchr(argv[1], '.');
-    strncpy(output.name, argv[1], cp - argv[1]);
-    strcat(output.name, "_tr.yuv");
+    strncpy(output, argv[1], cp - argv[1]);
+    strcat(output, "_tr.yuv");
     
     fd_tr = open
             (
-             output.name,
+             output,
              O_WRONLY | O_CREAT | O_TRUNC,
              S_IRUSR
             );
     // specify output file name (1,0)
-    output = null;
     cp = strchr(argv[1], '.');
-    strncpy(output.name, argv[1], cp - argv[1]);
-    strcat(output.name, "_bl.yuv");
+    strncpy(output, argv[1], cp - argv[1]);
+    strcat(output, "_bl.yuv");
     
     fd_bl = open
             (
-             output.name,
+             output,
              O_WRONLY | O_CREAT | O_TRUNC,
              S_IRUSR
             );
     // specify output file name (1,1)
-    output = null;
     cp = strchr(argv[1], '.');
-    strncpy(output.name, argv[1], cp - argv[1]);
-    strcat(output.name, "_br.yuv");
+    strncpy(output, argv[1], cp - argv[1]);
+    strcat(output, "_br.yuv");
     
     fd_br = open
             (
-             output.name,
+             output,
              O_WRONLY | O_CREAT | O_TRUNC,
              S_IRUSR
             );
@@ -123,59 +116,59 @@ int main(int argc, const char * argv[])
     
     fprintf(stderr, "Processing: ");
 
-	while (1)
-	{
-		// Y
-		rd_sz = read(fd_src, img, wxh);
-		if (rd_sz == wxh)
-		{
-			tile(img, width, height, tl, tr, bl, br);
+    while (1)
+    {
+        // Y
+        rd_sz = read(fd_src, img, wxh);
+        if (rd_sz == wxh)
+        {
+            tile(img, width, height, tl, tr, bl, br);
 
-			write(fd_tl, tl, wxh / 4);
-			write(fd_tr, tr, wxh / 4);
-			write(fd_bl, bl, wxh / 4);
-			write(fd_br, br, wxh / 4);
-		}
-		else
-		{
-			break;
-		}
-		
-		// U
-		rd_sz = read(fd_src, img, wxh / 4);
-		if (rd_sz == wxh / 4)
-		{
-			tile(img, width / 2, height / 2, tl, tr, bl, br);
+            write(fd_tl, tl, wxh / 4);
+            write(fd_tr, tr, wxh / 4);
+            write(fd_bl, bl, wxh / 4);
+            write(fd_br, br, wxh / 4);
+        }
+        else
+        {
+            break;
+        }
+        
+        // U
+        rd_sz = read(fd_src, img, wxh / 4);
+        if (rd_sz == wxh / 4)
+        {
+            tile(img, width / 2, height / 2, tl, tr, bl, br);
 
-			write(fd_tl, tl, wxh / 4 / 4);
-			write(fd_tr, tr, wxh / 4 / 4);
-			write(fd_bl, bl, wxh / 4 / 4);
-			write(fd_br, br, wxh / 4 / 4);
-		}
-		else
-		{
-			break;
-		}
-		
-		// V
-		rd_sz = read(fd_src, img, wxh / 4);
-		if (rd_sz == wxh / 4)
-		{    
-			tile(img, width / 2, height / 2, tl, tr, bl, br);
+            write(fd_tl, tl, wxh / 4 / 4);
+            write(fd_tr, tr, wxh / 4 / 4);
+            write(fd_bl, bl, wxh / 4 / 4);
+            write(fd_br, br, wxh / 4 / 4);
+        }
+        else
+        {
+            break;
+        }
+        
+        // V
+        rd_sz = read(fd_src, img, wxh / 4);
+        if (rd_sz == wxh / 4)
+        {    
+            tile(img, width / 2, height / 2, tl, tr, bl, br);
 
-			write(fd_tl, tl, wxh / 4 / 4);
-			write(fd_tr, tr, wxh / 4 / 4);
-			write(fd_bl, bl, wxh / 4 / 4);
-			write(fd_br, br, wxh / 4 / 4);
-		}
-		else
-		{
-			break;
-		}
+            write(fd_tl, tl, wxh / 4 / 4);
+            write(fd_tr, tr, wxh / 4 / 4);
+            write(fd_bl, bl, wxh / 4 / 4);
+            write(fd_br, br, wxh / 4 / 4);
+        }
+        else
+        {
+            break;
+        }
         fputc('.', stderr);
         fflush(stderr);
-	}
-		
+    }
+        
     close(fd_src);
     close(fd_tl);
     close(fd_tr);
