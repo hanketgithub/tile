@@ -75,6 +75,7 @@ int main(int argc, const char * argv[])
              S_IRUSR
             );
     // specify output file name (0,1)
+    memset(output, 0, sizeof(output));
     cp = strchr(argv[1], '.');
     strncpy(output, argv[1], cp - argv[1]);
     strcat(output, "_tr.yuv");
@@ -86,6 +87,7 @@ int main(int argc, const char * argv[])
              S_IRUSR
             );
     // specify output file name (1,0)
+    memset(output, 0, sizeof(output));
     cp = strchr(argv[1], '.');
     strncpy(output, argv[1], cp - argv[1]);
     strcat(output, "_bl.yuv");
@@ -97,6 +99,7 @@ int main(int argc, const char * argv[])
              S_IRUSR
             );
     // specify output file name (1,1)
+    memset(output, 0, sizeof(output));
     cp = strchr(argv[1], '.');
     strncpy(output, argv[1], cp - argv[1]);
     strcat(output, "_br.yuv");
