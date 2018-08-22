@@ -1,4 +1,10 @@
 //
+//  main.c
+//  tile
+//
+//  Created by Hank Lee on 8/22/18.
+//  Copyright (c) 2015 Hank Lee. All rights reserved.
+//
 // Split a picture into four
 //
 

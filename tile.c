@@ -1,15 +1,23 @@
+//
+//  tile.c
+//  tile
+//
+//  Created by Hank Lee on 8/22/18.
+//  Copyright (c) 2015 Hank Lee. All rights reserved.
+//
+
 #include <stdint.h>
 #include <string.h>
 
 void tile
 (
-    const uint8_t src[],
-    int width,
-    int height,
-    uint8_t *dst_tl,
-    uint8_t *dst_tr,
-    uint8_t *dst_bl,
-    uint8_t *dst_br
+  const uint8_t  src[],
+        int      width,
+        int      height,
+        uint8_t *dst_tl,
+        uint8_t *dst_tr,
+        uint8_t *dst_bl,
+        uint8_t *dst_br
 )
 {
     uint8_t *p;
