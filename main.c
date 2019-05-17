@@ -25,11 +25,11 @@
 #define MAX_HEIGHT  4320
 
 
-static uint8_t img[MAX_WIDTH * MAX_HEIGHT * 3 / 2];
-static uint8_t tl[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3 / 2]; // top-left
-static uint8_t tr[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3 / 2]; // top-right
-static uint8_t bl[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3 / 2]; // bottom-left
-static uint8_t br[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3 / 2]; // bottom-right
+static uint8_t img[MAX_WIDTH * MAX_HEIGHT * 3];
+static uint8_t tl[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3]; // top-left
+static uint8_t tr[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3]; // top-right
+static uint8_t bl[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3]; // bottom-left
+static uint8_t br[MAX_WIDTH / 2 * MAX_HEIGHT / 2 * 3]; // bottom-right
 
 
 int main(int argc, const char * argv[])
@@ -45,13 +45,14 @@ int main(int argc, const char * argv[])
     uint32_t width;
     uint32_t height;
     uint32_t wxh;
+    uint32_t pix_sz;
 
     char *cp;
     char output[256] = { 0 };
 
-    if (argc < 4)
+    if (argc < 5)
     {
-        fprintf(stderr, "useage: %s [src_file] [width] [height]\n", argv[0]);
+        fprintf(stderr, "useage: %s [src_file] [width] [height] [bit_depth]\n", argv[0]);
         
         return -1;
     }
@@ -61,6 +62,7 @@ int main(int argc, const char * argv[])
     height      = 0;
     wxh         = 0;
     cp          = NULL;
+    pix_sz      = 0;
     
     fd_src = open(argv[1], O_RDONLY);
     if (fd_src < 0)
@@ -119,6 +121,7 @@ int main(int argc, const char * argv[])
             
     width   = atoi(argv[2]);
     height  = atoi(argv[3]);
+    pix_sz  = (atoi(argv[4]) == 10) ? 2 : 1;
     
     wxh = width * height;
 
@@ -128,15 +131,15 @@ int main(int argc, const char * argv[])
     while (1)
     {
         // Y
-        rd_sz = read(fd_src, img, wxh);
-        if (rd_sz == wxh)
+        rd_sz = read(fd_src, img, wxh * pix_sz);
+        if (rd_sz == wxh * pix_sz)
         {
-            tile(img, width, height, tl, tr, bl, br);
+            tile(img, width, height, tl, tr, bl, br, pix_sz);
 
-            write(fd_tl, tl, wxh / 4);
-            write(fd_tr, tr, wxh / 4);
-            write(fd_bl, bl, wxh / 4);
-            write(fd_br, br, wxh / 4);
+            write(fd_tl, tl, wxh / 4 * pix_sz);
+            write(fd_tr, tr, wxh / 4 * pix_sz);
+            write(fd_bl, bl, wxh / 4 * pix_sz);
+            write(fd_br, br, wxh / 4 * pix_sz);
         }
         else
         {
@@ -144,15 +147,15 @@ int main(int argc, const char * argv[])
         }
         
         // U
-        rd_sz = read(fd_src, img, wxh / 4);
-        if (rd_sz == wxh / 4)
+        rd_sz = read(fd_src, img, wxh / 4 * pix_sz);
+        if (rd_sz == wxh / 4 * pix_sz)
         {
-            tile(img, width / 2, height / 2, tl, tr, bl, br);
+            tile(img, width / 2, height / 2, tl, tr, bl, br, pix_sz);
 
-            write(fd_tl, tl, wxh / 4 / 4);
-            write(fd_tr, tr, wxh / 4 / 4);
-            write(fd_bl, bl, wxh / 4 / 4);
-            write(fd_br, br, wxh / 4 / 4);
+            write(fd_tl, tl, wxh / 4 / 4 * pix_sz);
+            write(fd_tr, tr, wxh / 4 / 4 * pix_sz);
+            write(fd_bl, bl, wxh / 4 / 4 * pix_sz);
+            write(fd_br, br, wxh / 4 / 4 * pix_sz);
         }
         else
         {
@@ -160,15 +163,15 @@ int main(int argc, const char * argv[])
         }
         
         // V
-        rd_sz = read(fd_src, img, wxh / 4);
-        if (rd_sz == wxh / 4)
+        rd_sz = read(fd_src, img, wxh / 4 * pix_sz);
+        if (rd_sz == wxh / 4 * pix_sz)
         {    
-            tile(img, width / 2, height / 2, tl, tr, bl, br);
+            tile(img, width / 2, height / 2, tl, tr, bl, br, pix_sz);
 
-            write(fd_tl, tl, wxh / 4 / 4);
-            write(fd_tr, tr, wxh / 4 / 4);
-            write(fd_bl, bl, wxh / 4 / 4);
-            write(fd_br, br, wxh / 4 / 4);
+            write(fd_tl, tl, wxh / 4 / 4 * pix_sz);
+            write(fd_tr, tr, wxh / 4 / 4 * pix_sz);
+            write(fd_bl, bl, wxh / 4 / 4 * pix_sz);
+            write(fd_br, br, wxh / 4 / 4 * pix_sz);
         }
         else
         {

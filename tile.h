@@ -17,7 +17,8 @@ void tile
         uint8_t *dst_tl,
         uint8_t *dst_tr,
         uint8_t *dst_bl,
-        uint8_t *dst_br
+        uint8_t *dst_br,
+        uint8_t  pix_sz
 );
 
 #endif

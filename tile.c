@@ -17,7 +17,8 @@ void tile
         uint8_t *dst_tl,
         uint8_t *dst_tr,
         uint8_t *dst_bl,
-        uint8_t *dst_br
+        uint8_t *dst_br,
+        uint8_t  pix_sz
 )
 {
     uint8_t *p;
@@ -25,19 +26,19 @@ void tile
     uint8_t *r;
     int i;
 	
-	p = (uint8_t *) src;
-	q = dst_tl;
-	r = dst_tr;
+    p = (uint8_t *) src;
+    q = dst_tl;
+    r = dst_tr;
     
     // Top half
     for (i = 0; i < height / 2; i++)
     {
-        memcpy(q, p, width / 2);
-        p += width / 2;
-        q += width / 2;
-        memcpy(r, p, width / 2);
-        p += width / 2;
-        r += width / 2;
+        memcpy(q, p, width / 2 * pix_sz);
+        p += width / 2 * pix_sz;
+        q += width / 2 * pix_sz;
+        memcpy(r, p, width / 2 * pix_sz);
+        p += width / 2 * pix_sz;
+        r += width / 2 * pix_sz;
     }
     
     q = dst_bl;
@@ -45,11 +46,11 @@ void tile
     // Bottom half
     for (i = 0; i < height / 2; i++)
     {
-        memcpy(q, p, width / 2);
-        p += width / 2;
-        q += width / 2;
-        memcpy(r, p, width / 2);
-        p += width / 2;
-        r += width / 2;
+        memcpy(q, p, width / 2 * pix_sz);
+        p += width / 2 * pix_sz;
+        q += width / 2 * pix_sz;
+        memcpy(r, p, width / 2 * pix_sz);
+        p += width / 2 * pix_sz;
+        r += width / 2 * pix_sz;
     }
 }
