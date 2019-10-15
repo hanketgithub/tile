@@ -46,13 +46,14 @@ int main(int argc, const char * argv[])
     uint32_t height;
     uint32_t wxh;
     uint32_t pix_sz;
+    uint32_t c_pixel_per_sample;
 
     char *cp;
     char output[256] = { 0 };
 
-    if (argc < 5)
+    if (argc < 6)
     {
-        fprintf(stderr, "useage: %s [src_file] [width] [height] [bit_depth]\n", argv[0]);
+        fprintf(stderr, "useage: %s [src_file] [width] [height] [bit_depth] [420 | 422]\n", argv[0]);
         
         return -1;
     }
@@ -63,6 +64,7 @@ int main(int argc, const char * argv[])
     wxh         = 0;
     cp          = NULL;
     pix_sz      = 0;
+    c_pixel_per_sample = 4;
     
     fd_src = open(argv[1], O_RDONLY);
     if (fd_src < 0)
@@ -122,6 +124,7 @@ int main(int argc, const char * argv[])
     width   = atoi(argv[2]);
     height  = atoi(argv[3]);
     pix_sz  = (atoi(argv[4]) == 10) ? 2 : 1;
+    c_pixel_per_sample = (strcmp(argv[5], "422") == 0) ? 2 : 4;
     
     wxh = width * height;
 
@@ -145,17 +148,19 @@ int main(int argc, const char * argv[])
         {
             break;
         }
-        
-        // U
-        rd_sz = read(fd_src, img, wxh / 4 * pix_sz);
-        if (rd_sz == wxh / 4 * pix_sz)
-        {
-            tile(img, width / 2, height / 2, tl, tr, bl, br, pix_sz);
 
-            write(fd_tl, tl, wxh / 4 / 4 * pix_sz);
-            write(fd_tr, tr, wxh / 4 / 4 * pix_sz);
-            write(fd_bl, bl, wxh / 4 / 4 * pix_sz);
-            write(fd_br, br, wxh / 4 / 4 * pix_sz);
+        uint32_t c_height = (c_pixel_per_sample == 2) ? height : height / 2;
+
+        // U
+        rd_sz = read(fd_src, img, wxh / c_pixel_per_sample * pix_sz);
+        if (rd_sz == wxh / c_pixel_per_sample * pix_sz)
+        {
+            tile(img, width / 2, c_height, tl, tr, bl, br, pix_sz);
+
+            write(fd_tl, tl, wxh / c_pixel_per_sample / 4 * pix_sz);
+            write(fd_tr, tr, wxh / c_pixel_per_sample / 4 * pix_sz);
+            write(fd_bl, bl, wxh / c_pixel_per_sample / 4 * pix_sz);
+            write(fd_br, br, wxh / c_pixel_per_sample / 4 * pix_sz);
         }
         else
         {
@@ -163,15 +168,15 @@ int main(int argc, const char * argv[])
         }
         
         // V
-        rd_sz = read(fd_src, img, wxh / 4 * pix_sz);
-        if (rd_sz == wxh / 4 * pix_sz)
+        rd_sz = read(fd_src, img, wxh / c_pixel_per_sample * pix_sz);
+        if (rd_sz == wxh / c_pixel_per_sample * pix_sz)
         {    
-            tile(img, width / 2, height / 2, tl, tr, bl, br, pix_sz);
+            tile(img, width / 2, c_height, tl, tr, bl, br, pix_sz);
 
-            write(fd_tl, tl, wxh / 4 / 4 * pix_sz);
-            write(fd_tr, tr, wxh / 4 / 4 * pix_sz);
-            write(fd_bl, bl, wxh / 4 / 4 * pix_sz);
-            write(fd_br, br, wxh / 4 / 4 * pix_sz);
+            write(fd_tl, tl, wxh / c_pixel_per_sample / 4 * pix_sz);
+            write(fd_tr, tr, wxh / c_pixel_per_sample / 4 * pix_sz);
+            write(fd_bl, bl, wxh / c_pixel_per_sample / 4 * pix_sz);
+            write(fd_br, br, wxh / c_pixel_per_sample / 4 * pix_sz);
         }
         else
         {
